@@ -1,3 +1,5 @@
+// Main class Code
+
 import java.util.*;
 
 public class Main {
@@ -58,6 +60,7 @@ public class Main {
     }
 }
 
+// Student Dao class
 
 import java.sql.*;
 import java.util.*;
@@ -110,6 +113,7 @@ public class StudentDAO {
     }
 }
 
+// Student class
 
 public class Student {
     private int id;
