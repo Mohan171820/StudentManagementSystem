@@ -1,0 +1,151 @@
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        Scanner sc = new Scanner(System.in);               // Here it reads the data entered by user
+        StudentDAO dao = new StudentDAO();
+
+        while (true) {
+            System.out.println("\n1. Add\n2. View All\n3. Update Name\n4. Delete\n5. Exit");
+            System.out.print("Enter choice: ");
+            int ch = sc.nextInt();
+            sc.nextLine();
+
+                                                            // check the option that had been entered
+
+            switch (ch) {
+                case 1:                                     // this case1 is to upload the data
+                    System.out.print("Name: ");
+                    String name = sc.nextLine();
+                    System.out.print("Course: ");
+                    String course = sc.nextLine();
+                    System.out.print("Marks: ");
+                    int marks = sc.nextInt();
+                    dao.addStudent(new Student(0, name, course, marks));
+                    System.out.println("Student Added!");
+                    break;
+
+                case 2:                                               // the case 2 is to show the data
+                    for (Student s : dao.getAllStudents()) {
+                        System.out.println(s);
+                    }
+                    break;
+
+                case 3:                                               // the case3 is to update the data
+                    System.out.print("ID to Update: ");
+                    int uid = sc.nextInt();
+                    sc.nextLine();
+                    System.out.print("New Name: ");
+                    String newName = sc.nextLine();
+                    dao.updateStudent(uid, newName);
+                    System.out.println("Updated!");
+                    break;
+
+                case 4:                                             //the casse4 is to delete the data that user want
+                    System.out.print("ID to Delete: ");
+                    int did = sc.nextInt();
+                    dao.deleteStudent(did);
+                    System.out.println("Deleted!");
+                    break;
+
+                case 5:
+                    System.out.println("Bye!");
+                    return;
+                default:
+                    System.out.println("Invalid Choice");
+            }
+        }
+    }
+}
+
+
+import java.sql.*;
+import java.util.*;
+
+public class StudentDAO {
+    private Connection con;
+
+    public StudentDAO() throws Exception {
+        con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Store", "postgres", "Nani898501");
+    }
+
+    public void addStudent(Student s) throws SQLException {
+        String sql = "INSERT INTO students(name, course, marks) VALUES (?, ?, ?)";
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setString(1, s.getName());
+        ps.setString(2, s.getCourse());
+        ps.setInt(3, s.getMarks());
+        ps.executeUpdate();
+    }
+
+    public List<Student> getAllStudents() throws SQLException {
+        List<Student> list = new ArrayList<>();
+        Statement st = con.createStatement();
+        ResultSet rs = st.executeQuery("SELECT * FROM students");
+
+        while (rs.next()) {
+            list.add(new Student(
+                    rs.getInt("id"),
+                    rs.getString("name"),
+                    rs.getString("course"),
+                    rs.getInt("marks")
+            ));
+        }
+        return list;
+    }
+
+    public void updateStudent(int id, String name) throws SQLException {
+        String sql = "UPDATE students SET name=? WHERE id=?";
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setString(1, name);
+        ps.setInt(2, id);
+        ps.executeUpdate();
+    }
+
+    public void deleteStudent(int id) throws SQLException {
+        String sql = "DELETE FROM students WHERE id=?";
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setInt(1, id);
+        ps.executeUpdate();
+    }
+}
+
+
+public class Student {
+    private int id;
+    private String name;
+    private String course;
+    private int marks;
+
+    public Student(int id, String name, String course, int marks) {
+        this.id = id;
+        this.name = name;
+        this.course = course;
+        this.marks = marks;
+    }
+
+    // ✅ Add these getter methods
+    public String getName() {
+        return name;
+    }
+
+    public String getCourse() {
+        return course;
+    }
+
+    public int getMarks() {
+        return marks;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    // Optional: setters if needed
+
+    @Override
+    public String toString() {
+        return id + " | " + name + " | " + course + " | " + marks;
+    }
+}
+
